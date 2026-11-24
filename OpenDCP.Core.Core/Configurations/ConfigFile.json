@@ -1,0 +1,13 @@
+{
+  "IdP": {
+    "Driver": "file",
+    "Settings": {
+      "Path": "C:\\DCP\\Platform\\backend\\Core-v2\\DCP.Core.Core\\Configurations\\users.json"
+    },
+    "RoleRegex": {
+      "Global": "GLODigitalClone_DEV_GLOBAL_(?<Permission>\\w+)",
+      "Site": "^GLODigitalClone_DEV_(?<SiteShort>[^_]+)_(?<Permission>[^_]+)$",
+      "Module": "GLODigitalClone_DEV_(?<SiteShort>\\w+)_(?<Module>[\\w]+)_(?<Permission>[\\w]+)"
+    }
+  }
+}

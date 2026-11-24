@@ -1,0 +1,16 @@
+{
+  "IdP": {
+    "Driver": "ad",
+    "Settings": {
+      "Server": "example.com",
+      "User": "myuser",
+      "Password": "mySuperSavePassword",
+      "SearchBase": "DC=example,DC=com"
+    },
+    "RoleRegex": {
+      "Global": "GLODigitalClone_DEV_GLOBAL_(?<Permission>\\w+)",
+      "Site": "^GLODigitalClone_DEV_(?<SiteShort>[^_]+)_(?<Permission>[^_]+)$",
+      "Module": "GLODigitalClone_DEV_(?<SiteShort>\\w+)_(?<Module>[\\w]+)_(?<Permission>[\\w]+)"
+    }
+  }
+}

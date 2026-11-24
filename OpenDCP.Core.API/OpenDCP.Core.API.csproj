@@ -1,0 +1,113 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/Roche/dcp-core-platform-be</RepositoryUrl>
+    <PackageProjectUrl>https://open-dcp.ai/</PackageProjectUrl>
+    <Version>4.5.7</Version>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <RootNamespace>DCP.Core.API</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Configurations>dev;stage;test;prod;edu;open</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="8.0.28" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.21" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
+    <PackageReference Include="OpenDCP.Framework.Configuration.Model" Version="0.3.0" />
+    <PackageReference Include="OpenDCP.Framework.ConfigurationProvider" Version="0.1.0" />
+    <PackageReference Include="OpenDCP.Framework.Datasource.Base" Version="0.5.0" />
+    <PackageReference Include="OpenDCP.Framework.DataTypes.Equipment" Version="0.3.0" />
+    <PackageReference Include="OpenDCP.Framework.FormBuilder" Version="0.1.1" />
+    <PackageReference Include="OpenDCP.Framework.Messaging" Version="0.1.0" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenDCP.Core.Core\OpenDCP.Core.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="gatewaysettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+	<Choose>
+		<When Condition="'$(Configuration)' == 'dev'">
+			<ItemGroup> 
+				<None Include="appsettings.dev.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
+				<None Include="appsettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+				<Content Remove="appsettings.*.json;appsettings.json" />
+			</ItemGroup>
+		</When>
+		<When Condition="'$(Configuration)' == 'stage'">
+			<ItemGroup>
+				<None Include="appsettings.stage.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
+				<None Include="appsettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+				<Content Remove="appsettings.*.json;appsettings.json" />
+			</ItemGroup>
+		</When>
+		<When Condition="'$(Configuration)' == 'test'">
+			<ItemGroup>
+				<None Include="appsettings.test.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
+				<None Include="appsettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+				<Content Remove="appsettings.*.json;appsettings.json" />
+			</ItemGroup>
+		</When>
+		<When Condition="'$(Configuration)' == 'prod'">
+			<ItemGroup>
+				<None Include="appsettings.prod.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
+				<None Include="appsettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+				<Content Remove="appsettings.*.json;appsettings.json" />
+			</ItemGroup>
+		</When>
+		<When Condition="'$(Configuration)' == 'edu'">
+			<ItemGroup>
+				<None Include="appsettings.edu.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
+				<None Include="appsettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+				<Content Remove="appsettings.*.json;appsettings.json" />
+			</ItemGroup>
+		</When>
+		<When Condition="'$(Configuration)' == 'open'">
+			<ItemGroup>
+				<None Include="appsettings.open.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
+				<None Include="appsettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+				<Content Remove="appsettings.*.json;appsettings.json" />
+			</ItemGroup>
+		</When>
+		<When Condition="'$(Configuration)' == 'example'">
+			<ItemGroup>
+				<None Include="appsettings.example.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
+				<None Include="appsettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+				<Content Remove="appsettings.*.json;appsettings.json" />
+			</ItemGroup>
+		</When>
+		<Otherwise>
+			<ItemGroup>
+				<None Include="appsettings.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
+				<None Include="appsettings.dev.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+			</ItemGroup>
+		</Otherwise>
+	</Choose>
+	<Target Name="RenameConfigFiles" AfterTargets="Publish">
+		<Move SourceFiles="$(ProjectDir)$(OutDir)appsettings.$(Configuration).json" DestinationFiles="$(ProjectDir)$(OutDir)appsettings.json" />
+		<Move SourceFiles="$(PublishDir)appsettings.$(Configuration).json" DestinationFiles="$(PublishDir)appsettings.json" />
+	</Target>
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>

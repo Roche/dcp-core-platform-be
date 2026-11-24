@@ -1,0 +1,128 @@
+﻿using OpenDCP.Core.DAL;
+using OpenDCP.Framework.Security.Classes;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+
+namespace OpenDCP.Core.CLI.Tasks
+{
+    public class ExportedConnectionString
+    {
+        public int? ID { get; set; }
+        public required string DecryptDetails { get; set; }
+    }
+    public static class MigrateDatasourceConnectionStringsTask
+    {
+        public static async Task RunAsync(DCPCoreDbContext dbContext, string key, string sourceDbConnectionString)
+        {
+            var records = await FetchConnectionStringsAsync(sourceDbConnectionString);
+
+            if (records is null)
+                throw new InvalidDataException("Error fetching connection strings");
+
+            await PrepareDatabaseAsync(dbContext);
+
+            foreach (var record in records.Select(r => r.DecryptDetails))
+            {
+                var connectionStringJson = ParseConnectionStringAsync(record, key);
+                if (connectionStringJson is null) continue;
+
+                await UpdateConnectionStringsAsync(dbContext, record, connectionStringJson, key);
+            }
+
+            await dbContext.Database.ExecuteSqlAsync($"SELECT periods.add_system_versioning('\"DataSource\"')");
+        }
+
+        private static async Task<List<ExportedConnectionString>> FetchConnectionStringsAsync(string sourceDbConnectionString)
+        {
+            const string sqlQuery = $@"SELECT DISTINCT ConnectionString 
+                              FROM dbo.DataSources FOR SYSTEM_TIME ALL 
+                              WHERE ConnectionString IS NOT NULL";
+
+            var records = new List<ExportedConnectionString>();
+
+            await using var conn = new SqlConnection(sourceDbConnectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new SqlCommand(sqlQuery, conn);
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                records.Add(new ExportedConnectionString { DecryptDetails = reader.GetString(0) });
+            }
+
+            return records;
+        }
+
+        // Prepare the database for updates
+        private static async Task PrepareDatabaseAsync(DCPCoreDbContext dbContext)
+        {
+            await dbContext.Database.ExecuteSqlAsync($"SELECT periods.drop_system_versioning('\"DataSource\"')");
+            await dbContext.Database.ExecuteSqlAsync($"GRANT UPDATE ON TABLE \"DataSource_history\" TO CURRENT_USER;");
+        }
+
+        // Parse or decrypt a connection string JSON
+        private static JsonObject? ParseConnectionStringAsync(string encryptedValue, string key)
+        {
+            if (string.IsNullOrEmpty(encryptedValue)) return null;
+
+            JsonDocument? jDoc = null;
+
+            try
+            {
+                jDoc = JsonDocument.Parse(encryptedValue);
+            }
+            catch (JsonException)
+            {
+                try
+                {
+                    jDoc = JsonDocument.Parse(EncryptionHelper.DecryptLegacy(encryptedValue, key));
+                }
+                catch
+                {
+                    Console.WriteLine($"Can't read: {encryptedValue}");
+                    return null;
+                }
+            }
+
+            var root = jDoc.RootElement;
+
+            if (root.ValueKind != JsonValueKind.Object) throw new InvalidOperationException($"Can't cast JSON string");
+
+            var targetElement = root.EnumerateObject().Count() == 1 ? root.EnumerateObject().First().Value : root;
+
+            if (targetElement.ValueKind != JsonValueKind.Object)
+                throw new InvalidOperationException($"Expected JSON object but got {targetElement.ValueKind}");
+
+            return JsonNode.Parse(targetElement.GetRawText())!.AsObject();
+        }
+
+        // Update the encrypted connection strings in the database
+        private static async Task UpdateConnectionStringsAsync(
+            DCPCoreDbContext dbContext,
+            string originalValue,
+            JsonObject connectionStringJson,
+            string key)
+        {
+            var encryptedValue = EncryptionHelper.EncryptConnectionString(connectionStringJson, key);
+
+            var sql = @"
+                UPDATE ""DataSource""
+                SET ""ConnectionString"" = @encryptedValue
+                WHERE ""ConnectionString"" = @originalValue;
+
+                UPDATE ""DataSource_history""
+                SET ""ConnectionString"" = @encryptedValue
+                WHERE ""ConnectionString"" = @originalValue;
+                ";
+
+            await dbContext.Database.ExecuteSqlRawAsync(
+                sql,
+                new NpgsqlParameter("@encryptedValue", encryptedValue),
+                new NpgsqlParameter("@originalValue", originalValue)
+            );
+        }
+    }
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SonarQubeAnalysisProperties xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
+  <Property Name="sonar.issue.ignore.multicriteria">e1,e2,e3,e4,e5</Property>
+
+  <Property Name="sonar.issue.ignore.multicriteria.e1.ruleKey">Web:InternationalizationCheck</Property>
+  <Property Name="sonar.issue.ignore.multicriteria.e1.resourceKey">**/*.html</Property>
+
+  <Property Name="sonar.issue.ignore.multicriteria.e2.ruleKey">csharpsquid:S2201</Property>
+  <Property Name="sonar.issue.ignore.multicriteria.e2.resourceKey">**/*.cs</Property>
+
+  <Property Name="sonar.issue.ignore.multicriteria.e3.ruleKey">csharpsquid:S1697</Property>
+  <Property Name="sonar.issue.ignore.multicriteria.e3.resourceKey">**/*.cs</Property>
+
+  <Property Name="sonar.issue.ignore.multicriteria.e4.ruleKey">csharpsquid:S2259</Property>
+  <Property Name="sonar.issue.ignore.multicriteria.e4.resourceKey">**/*.cs</Property>
+
+  <Property Name="sonar.issue.ignore.multicriteria.e5.ruleKey">csharpsquid:S1133</Property>
+  <Property Name="sonar.issue.ignore.multicriteria.e5.resourceKey">**/*.cs</Property>
+</SonarQubeAnalysisProperties>

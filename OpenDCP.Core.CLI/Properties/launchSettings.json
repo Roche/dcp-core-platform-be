@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DCP.Core.CLI": {
+      "commandName": "Project",
+      "commandLineArgs": "decrypt-connection-strings\r\ndatasource\r\n7789"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "MessageChannels": [
+    {
+      "Driver": "smtp",
+      "Settings": {
+        "Host": "mailhost.example.com",
+        "Port": 25,
+        "Sender": "no-reply@example.com"
+      }
+    }
+  ]
+}
+

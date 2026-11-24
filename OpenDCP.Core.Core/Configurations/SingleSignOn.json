@@ -1,0 +1,14 @@
+{
+  "IdP": {
+    "Driver": "sso",
+    "Settings": {
+      "Url": "test",
+      "Issuer": "dc-dev.example.com"
+    },
+    "RoleRegex": {
+      "Global": "GLODigitalClone_DEV_GLOBAL_(?<Permission>\\w+)",
+      "Site": "^GLODigitalClone_DEV_(?<SiteShort>[^_]+)_(?<Permission>[^_]+)$",
+      "Module": "GLODigitalClone_DEV_(?<SiteShort>\\w+)_(?<Module>[\\w]+)_(?<Permission>[\\w]+)"
+    }
+  }
+}

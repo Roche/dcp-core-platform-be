@@ -1,0 +1,12 @@
+[
+  {
+    "UnixId": "test",
+    "Password": "test",
+    "FirstName": "Genius",
+    "LastName": "Developer",
+    "Email": "genius@example.com",
+    "Groups": [
+      "GLODigitalClone_DEV_GLOBAL_ADMIN"
+    ]
+  }
+]
