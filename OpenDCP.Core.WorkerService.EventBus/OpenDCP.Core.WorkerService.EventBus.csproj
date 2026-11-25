@@ -5,7 +5,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/Roche/dcp-core-platform-be</RepositoryUrl>
     <PackageProjectUrl>https://open-dcp.ai/</PackageProjectUrl>
-    <Version>4.5.7</Version>
+    <Version>4.6.0</Version>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
